@@ -22,8 +22,8 @@ providers:
     api_key: sk-test
 active_provider: claude
 `
-	path := writeTempConfig(t, content)
-	cfg, err := LoadConfig(path)
+	path := writeTempConfig(t, content) // writeTempConfig: 本文件中定义的函数
+	cfg, err := LoadConfig(path) // LoadConfig: config.go 中定义的函数
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -47,8 +47,8 @@ providers:
     api_key: sk-test
 active_provider: claude
 `
-	path := writeTempConfig(t, content)
-	_, err := LoadConfig(path)
+	path := writeTempConfig(t, content) // writeTempConfig: 本文件中定义的函数
+	_, err := LoadConfig(path) // LoadConfig: config.go 中定义的函数
 	if err == nil {
 		t.Fatal("expected error for missing name, got nil")
 	}
@@ -64,8 +64,8 @@ providers:
     api_key: sk-test
 active_provider: test
 `
-	path := writeTempConfig(t, content)
-	_, err := LoadConfig(path)
+	path := writeTempConfig(t, content) // writeTempConfig: 本文件中定义的函数
+	_, err := LoadConfig(path) // LoadConfig: config.go 中定义的函数
 	if err == nil {
 		t.Fatal("expected error for invalid protocol, got nil")
 	}
@@ -81,8 +81,8 @@ providers:
     api_key: sk-test
 active_provider: nonexistent
 `
-	path := writeTempConfig(t, content)
-	_, err := LoadConfig(path)
+	path := writeTempConfig(t, content) // writeTempConfig: 本文件中定义的函数
+	_, err := LoadConfig(path) // LoadConfig: config.go 中定义的函数
 	if err == nil {
 		t.Fatal("expected error for nonexistent active_provider, got nil")
 	}
@@ -97,8 +97,8 @@ providers:
     base_url: https://api.test.com
 active_provider: test
 `
-	path := writeTempConfig(t, content)
-	_, err := LoadConfig(path)
+	path := writeTempConfig(t, content) // writeTempConfig: 本文件中定义的函数
+	_, err := LoadConfig(path) // LoadConfig: config.go 中定义的函数
 	if err == nil {
 		t.Fatal("expected error for missing api_key, got nil")
 	}

@@ -35,16 +35,16 @@ type Stream interface {
 
 // Provider 接口定义了与 LLM 服务交互的方法
 type Provider interface {
-	StreamChat(ctx context.Context, messages []Message, thinking bool) (Stream, error)
+	StreamChat(ctx context.Context, messages []Message, thinking bool) (Stream, error) // Message: 本文件中定义的结构体，Stream: 本文件中定义的接口
 }
 
 // NewProvider 根据配置创建对应的 Provider 实例
 func NewProvider(cfg config.ProviderConfig) (Provider, error) {
 	switch cfg.Protocol {
 	case "anthropic":
-		return NewAnthropicProvider(cfg)
+		return NewAnthropicProvider(cfg) // NewAnthropicProvider: anthropic.go 中定义的函数
 	case "openai":
-		return NewOpenAIProvider(cfg)
+		return NewOpenAIProvider(cfg) // NewOpenAIProvider: openai.go 中定义的函数
 	default:
 		return nil, fmt.Errorf("unsupported protocol: %s", cfg.Protocol)
 	}

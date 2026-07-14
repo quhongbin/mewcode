@@ -31,8 +31,8 @@ type Model struct {
 	conversation    *conversation.Conversation
 	textarea        textarea.Model
 	viewport        viewport.Model
-	messages        []DisplayMessage
-	status          statusType
+	messages        []DisplayMessage // DisplayMessage: 本文件中定义的结构体
+	status          statusType       // statusType: 本文件中定义的类型
 	timerStart      time.Time
 	elapsed         time.Duration
 	err             error
@@ -58,8 +58,8 @@ func NewModel(conv *conversation.Conversation) Model {
 		conversation: conv,
 		textarea:     ta,
 		viewport:     vp,
-		messages:     []DisplayMessage{},
-		status:       statusIdle,
+		messages:     []DisplayMessage{}, // DisplayMessage: model.go 中定义的结构体
+		status:       statusIdle,         // statusIdle: model.go 中定义的常量
 	}
 }
 
@@ -69,14 +69,14 @@ func (m *Model) SetProgram(p *tea.Program) {
 }
 
 // Init 初始化模型
-func (m Model) Init() tea.Cmd {
-	return m.tick()
+func (m Model) Init() tea.Cmd { // Model: model.go 中定义的类型
+	return m.tick() // tick: model.go 中定义的函数
 }
 
 // tick 每秒更新计时器
-func (m Model) tick() tea.Cmd {
+func (m Model) tick() tea.Cmd { // Model: model.go 中定义的类型
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
-		return tickMsg(t)
+		return tickMsg(t) // tickMsg: model.go 中定义的类型
 	})
 }
 

@@ -45,7 +45,7 @@ func TestConversation_SendMessage(t *testing.T) {
 		},
 	}
 
-	conv := NewConversation(mock, false)
+	conv := NewConversation(mock, false) // NewConversation: conversation.go 中定义的函数
 
 	// 发送第一条消息
 	stream, err := conv.SendMessage(context.Background(), "Hi")
@@ -94,7 +94,7 @@ func TestConversation_MultipleRounds(t *testing.T) {
 		},
 	}
 
-	conv := NewConversation(mock, false)
+	conv := NewConversation(mock, false) // NewConversation: conversation.go 中定义的函数
 
 	// 第一轮对话
 	_, err := conv.SendMessage(context.Background(), "First question")
@@ -142,7 +142,7 @@ func TestConversation_WithThinking(t *testing.T) {
 		},
 	}
 
-	conv := NewConversation(mock, true)
+	conv := NewConversation(mock, true) // NewConversation: conversation.go 中定义的函数
 
 	stream, err := conv.SendMessage(context.Background(), "Question")
 	if err != nil {

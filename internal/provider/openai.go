@@ -28,7 +28,7 @@ func NewOpenAIProvider(cfg config.ProviderConfig) (*OpenAIProvider, error) {
 }
 
 // StreamChat 发送消息并返回流式响应
-func (p *OpenAIProvider) StreamChat(ctx context.Context, messages []Message, thinking bool) (Stream, error) {
+func (p *OpenAIProvider) StreamChat(ctx context.Context, messages []Message, thinking bool) (Stream, error) { // Message: provider.go 中定义的结构体，Stream: provider.go 中定义的接口
 	// 构造请求体
 	reqBody := map[string]interface{}{
 		"model":    p.config.Model,
@@ -78,7 +78,7 @@ type openaiStream struct {
 }
 
 // Next 获取下一个数据块
-func (s *openaiStream) Next() (*StreamChunk, error) {
+func (s *openaiStream) Next() (*StreamChunk, error) { // StreamChunk: provider.go 中定义的结构体
 	for s.scanner.Scan() {
 		line := s.scanner.Text()
 
@@ -93,7 +93,7 @@ func (s *openaiStream) Next() (*StreamChunk, error) {
 
 			// 检查是否是结束标记
 			if data == "[DONE]" {
-				return &StreamChunk{Type: StreamChunkTypeDone}, nil
+				return &StreamChunk{Type: StreamChunkTypeDone}, nil // StreamChunk: provider.go 中定义的结构体，StreamChunkTypeDone: provider.go 中定义的常量
 			}
 
 			// 解析 JSON
@@ -121,7 +121,7 @@ func (s *openaiStream) Next() (*StreamChunk, error) {
 			content, ok := delta["content"].(string)
 			if ok && content != "" {
 				return &StreamChunk{
-					Type:    StreamChunkTypeText,
+					Type:    StreamChunkTypeText, // StreamChunkTypeText: provider.go 中定义的常量
 					Content: content,
 				}, nil
 			}
@@ -132,7 +132,7 @@ func (s *openaiStream) Next() (*StreamChunk, error) {
 		return nil, fmt.Errorf("stream error: %w", err)
 	}
 
-	return &StreamChunk{Type: StreamChunkTypeDone}, nil
+	return &StreamChunk{Type: StreamChunkTypeDone}, nil // StreamChunk: provider.go 中定义的结构体，StreamChunkTypeDone: provider.go 中定义的常量
 }
 
 // Close 关闭流

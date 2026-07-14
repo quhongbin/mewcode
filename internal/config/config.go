@@ -25,7 +25,7 @@ type Config struct {
 }
 
 // LoadConfig 加载并验证配置文件
-func LoadConfig(path string) (Config, error) {
+func LoadConfig(path string) (Config, error) { // Config: 本文件中定义的结构体
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("failed to read config file: %w", err)
@@ -36,7 +36,7 @@ func LoadConfig(path string) (Config, error) {
 		return Config{}, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	if err := validateConfig(&cfg); err != nil {
+	if err := validateConfig(&cfg); err != nil { // validateConfig: 本文件中定义的函数
 		return Config{}, err
 	}
 
@@ -44,7 +44,7 @@ func LoadConfig(path string) (Config, error) {
 }
 
 // validateConfig 验证配置
-func validateConfig(cfg *Config) error {
+func validateConfig(cfg *Config) error { // Config: 本文件中定义的结构体
 	if len(cfg.Providers) == 0 {
 		return fmt.Errorf("providers list is empty")
 	}
