@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
@@ -32,7 +33,7 @@ func (m Model) View() string { // Model: model.go 中定义的类型
 			b.WriteString(errorStyle.Render(fmt.Sprintf("Error: %s", msg.Content))) // errorStyle: styles.go 中定义的变量，Content: DisplayMessage 结构体字段（model.go）
 			b.WriteString("\n\n")
 		case msg.Role == "user": // Role: DisplayMessage 结构体字段（model.go）
-			b.WriteString(userStyle.Render("You: ")) // userStyle: styles.go 中定义的变量
+			b.WriteString(userStyle.Render("You: "))                // userStyle: styles.go 中定义的变量
 			b.WriteString(ansi.Wrap(msg.Content, contentWidth, "")) // Content: DisplayMessage 结构体字段（model.go）
 			b.WriteString("\n\n")
 		case msg.Role == "assistant": // Role: DisplayMessage 结构体字段（model.go）
@@ -48,6 +49,31 @@ func (m Model) View() string { // Model: model.go 中定义的类型
 			b.WriteString("\n")
 			b.WriteString(ansi.Wrap(msg.Content, contentWidth, "")) // Content: DisplayMessage 结构体字段（model.go）
 			b.WriteString("\n\n")
+		case msg.Role == "tool_call": // Role: DisplayMessage 结构体字段（model.go）
+			if msg.ToolCall != nil { // ToolCall: DisplayMessage 结构体字段（model.go）
+				argsPreview := truncate(string(msg.ToolCall.Args), 100) // ToolCall: provider.ToolCall 结构体字段，truncate: view.go 中定义的函数
+				if msg.IsExecuting {
+					// 工具正在执行：渲染动态 spinner 动画
+					frames := []rune(spinnerFrames) // spinnerFrames: styles.go 中定义的常量
+					frame := frames[m.spinnerFrame%len(frames)]
+					b.WriteString(toolExecutingStyle.Render(fmt.Sprintf("%c \U0001f527 工具: %s(%s) \u2026 执行中", frame, msg.ToolCall.Name, argsPreview)))
+					b.WriteString("\n")
+				} else {
+					// 工具已完成：渲染静态完成状态
+					b.WriteString(toolDoneStyle.Render(fmt.Sprintf("\u2705 工具: %s(%s) \u2026 完成", msg.ToolCall.Name, argsPreview)))
+					b.WriteString("\n")
+				}
+			}
+		case msg.Role == "tool_result": // Role: DisplayMessage 结构体字段（model.go）
+			if msg.ToolResult != nil { // ToolResult: DisplayMessage 结构体字段（model.go）
+				resultPreview := truncate(msg.ToolResult.Content, 200) // ToolResult: tools.ToolResult 结构体字段，truncate: view.go 中定义的函数
+				if msg.ToolResult.IsError {
+					b.WriteString(errorStyle.Render(fmt.Sprintf("\xf0\x9f\x93\x8b 结果(错误): %s", resultPreview))) // errorStyle: styles.go 中定义的变量
+				} else {
+					b.WriteString(toolResultStyle.Render(fmt.Sprintf("\xf0\x9f\x93\x8b 结果: %s", resultPreview))) // toolResultStyle: styles.go 中定义的变量
+				}
+				b.WriteString("\n")
+			}
 		}
 	}
 
@@ -67,15 +93,25 @@ func (m Model) View() string { // Model: model.go 中定义的类型
 		}
 	}
 
-	// 渲染计时器
+	// 渲染计时器（右对齐，与工具执行状态分离）
 	if m.status == statusStreaming { // status: Model 结构体字段（model.go），statusStreaming: model.go 中定义的常量
-		elapsed := int(m.elapsed.Seconds()) // elapsed: Model 结构体字段（model.go）
-		b.WriteString(timerStyle.Render(fmt.Sprintf("\n⏱️  Imagining… (%ds)", elapsed))) // timerStyle: styles.go 中定义的变量
+		elapsed := int(time.Since(m.timerStart).Seconds()) // timerStart: Model 结构体字段（model.go）
+		timerText := fmt.Sprintf("⏱️  %ds", elapsed)
+		padding := contentWidth - ansi.StringWidth(timerText)
+		if padding > 0 {
+			b.WriteString(strings.Repeat(" ", padding))
+		}
+		b.WriteString(timerStyle.Render(timerText)) // timerStyle: styles.go 中定义的变量
 		b.WriteString("\n")
 	} else if m.elapsed > 0 { // elapsed: Model 结构体字段（model.go）
 		// 显示上一次的总耗时
 		elapsed := m.elapsed.Seconds() // elapsed: Model 结构体字段（model.go）
-		b.WriteString(timerStyle.Render(fmt.Sprintf("✓ Done in %.1fs", elapsed))) // timerStyle: styles.go 中定义的变量
+		timerText := fmt.Sprintf("✓ Done in %.1fs", elapsed)
+		padding := contentWidth - ansi.StringWidth(timerText)
+		if padding > 0 {
+			b.WriteString(strings.Repeat(" ", padding))
+		}
+		b.WriteString(timerStyle.Render(timerText)) // timerStyle: styles.go 中定义的变量
 		b.WriteString("\n")
 	}
 

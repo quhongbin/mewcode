@@ -22,7 +22,7 @@ func NewConversation(p provider.Provider, thinking bool) *Conversation {
 }
 
 // SendMessage 发送用户消息并返回流式响应
-func (c *Conversation) SendMessage(ctx context.Context, userText string) (provider.Stream, error) {
+func (c *Conversation) SendMessage(ctx context.Context, userText string, tools []provider.ToolDefinition) (provider.Stream, error) { // provider.ToolDefinition: provider.go 中定义的结构体
 	// 添加用户消息到历史
 	c.messages = append(c.messages, provider.Message{
 		Role:    "user",
@@ -30,7 +30,7 @@ func (c *Conversation) SendMessage(ctx context.Context, userText string) (provid
 	})
 
 	// 调用 Provider 获取响应
-	stream, err := c.provider.StreamChat(ctx, c.messages, c.thinking)
+	stream, err := c.provider.StreamChat(ctx, c.messages, tools, c.thinking)
 	if err != nil {
 		return nil, err
 	}
@@ -38,11 +38,49 @@ func (c *Conversation) SendMessage(ctx context.Context, userText string) (provid
 	return stream, nil
 }
 
+// AddUserMessage 添加用户消息到历史
+func (c *Conversation) AddUserMessage(content string) {
+	c.messages = append(c.messages, provider.Message{
+		Role:    "user",
+		Content: content,
+	})
+}
+
 // AddAssistantMessage 添加助手回复到历史
 func (c *Conversation) AddAssistantMessage(content string) {
 	c.messages = append(c.messages, provider.Message{
 		Role:    "assistant",
 		Content: content,
+	})
+}
+
+// AddAssistantMessageWithTools 添加含工具调用的助手消息到历史
+func (c *Conversation) AddAssistantMessageWithTools(content string, toolCalls []provider.ToolCall) { // provider.ToolCall: provider.go 中定义的结构体
+	c.messages = append(c.messages, provider.Message{
+		Role:      "assistant",
+		Content:   content,
+		ToolCalls: toolCalls,
+	})
+}
+
+// AddToolCallMessage 添加助手的工具调用消息到历史
+func (c *Conversation) AddToolCallMessage(toolCalls []provider.ToolCall) { // provider.ToolCall: provider.go 中定义的结构体
+	c.messages = append(c.messages, provider.Message{
+		Role:      "assistant",
+		ToolCalls: toolCalls,
+	})
+}
+
+// AddToolResultMessage 添加工具执行结果消息到历史
+func (c *Conversation) AddToolResultMessage(toolCallID string, content string, isError bool) {
+	role := "tool"
+	if isError {
+		// 错误结果也通过 tool 角色传递，模型可从 content 中识别错误
+	}
+	c.messages = append(c.messages, provider.Message{
+		Role:       role,
+		Content:    content,
+		ToolCallID: toolCallID,
 	})
 }
 

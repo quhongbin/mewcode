@@ -13,7 +13,7 @@ type mockProvider struct {
 	callCount int
 }
 
-func (m *mockProvider) StreamChat(ctx context.Context, messages []provider.Message, thinking bool) (provider.Stream, error) {
+func (m *mockProvider) StreamChat(ctx context.Context, messages []provider.Message, tools []provider.ToolDefinition, thinking bool) (provider.Stream, error) { // provider.Message, provider.ToolDefinition, provider.Stream: provider.go 中定义的类型
 	m.callCount++
 	return &mockStream{chunks: m.responses, index: 0}, nil
 }
@@ -48,7 +48,7 @@ func TestConversation_SendMessage(t *testing.T) {
 	conv := NewConversation(mock, false) // NewConversation: conversation.go 中定义的函数
 
 	// 发送第一条消息
-	stream, err := conv.SendMessage(context.Background(), "Hi")
+	stream, err := conv.SendMessage(context.Background(), "Hi", nil)
 	if err != nil {
 		t.Fatalf("SendMessage failed: %v", err)
 	}
@@ -97,14 +97,14 @@ func TestConversation_MultipleRounds(t *testing.T) {
 	conv := NewConversation(mock, false) // NewConversation: conversation.go 中定义的函数
 
 	// 第一轮对话
-	_, err := conv.SendMessage(context.Background(), "First question")
+	_, err := conv.SendMessage(context.Background(), "First question", nil)
 	if err != nil {
 		t.Fatalf("First SendMessage failed: %v", err)
 	}
 	conv.AddAssistantMessage("First response")
 
 	// 第二轮对话
-	_, err = conv.SendMessage(context.Background(), "Second question")
+	_, err = conv.SendMessage(context.Background(), "Second question", nil)
 	if err != nil {
 		t.Fatalf("Second SendMessage failed: %v", err)
 	}
@@ -144,7 +144,7 @@ func TestConversation_WithThinking(t *testing.T) {
 
 	conv := NewConversation(mock, true) // NewConversation: conversation.go 中定义的函数
 
-	stream, err := conv.SendMessage(context.Background(), "Question")
+	stream, err := conv.SendMessage(context.Background(), "Question", nil)
 	if err != nil {
 		t.Fatalf("SendMessage failed: %v", err)
 	}
